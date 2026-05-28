@@ -1,38 +1,35 @@
 const express = require("express");
+const dotenv = require("dotenv");
+dotenv.config();
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const { createClient } = require("redis");
+const { processSocketData } = require("./utils/socket");
+// const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const router = require("./apiRouter");
 const app = express();
-const PORT = process.env.PORT || 3001;
 const httpServer = createServer(app);
-const redisClient = createClient({ url: "redis://localhost:6379" });
-redisClient.on("error", (err) => console.error("Redis Client Error", err));
-app.use(cors());
+
 const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:3000", // Default React port
     methods: ["GET", "POST"],
   },
 });
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+app.use("/api", router);
 
 async function startServer() {
-  await redisClient.connect();
-
   io.on("connection", (socket) => {
-    socket.on("vehicle_telemetry", (data) => {
-      console.log(`Data received - ${data.speed}`);
-    });
-    socket.on("disconnect", () => {
-      console.log(`${socket.id} disconnected`);
-    });
+    processSocketData(socket);
+  });
+  const PORT = process.env.PORT || 3001;
+  httpServer.listen(PORT, () => {
+    console.log("Server is running on port ", PORT);
   });
 }
 
-app.get("/health", (req, res) => {
-  console.log("Healthy");
-  return res.send("Ok");
-});
-httpServer.listen(PORT, () => {
-  console.log("Server is running on port ", PORT);
-});
+startServer();
