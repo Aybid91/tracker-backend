@@ -32,7 +32,6 @@ function verifyPassword(inputPsw, storedPsw) {
   const hash = crypto
     .pbkdf2Sync(inputPsw, salt, iterations, 64, "sha512")
     .toString("hex");
-  console.log(444, hash, ":::::", hashedPassword);
   return hash === hashedPassword;
   return crypto.timingSafeEqual(
     Buffer.from(hash, "hex"),

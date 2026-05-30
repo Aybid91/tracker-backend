@@ -1,12 +1,31 @@
 const { verifyPassword } = require("../utils/auth");
+const { generateToken } = require("../utils/jwt");
+const { getPrisma } = require("../utils/prisma");
 
-const loginHandler = (req, res) => {
+const loginHandler = async (req, res) => {
   const { phn, psw } = req.body;
-  console.log(psw);
-  const verified = verifyPassword(
-    psw,
-    "dhmoNCV1UlaM3xrRmEFYgg==:::c22401fb5df06e2ec1c9aa6369a1cef720ae58a714587dc69213a701e381193be2ac82f3a4396b99c5ebb72db741af8f57e79dfd4980c76e3e2a2c6049bbdfce",
-  );
-  res.json({ verified });
+  try {
+    const prisma = getPrisma();
+    const user = await prisma.user_account.findFirst({
+      where: { phone_number: phn },
+      select: {
+        id: true,
+        hashed_password: true,
+        user_profile: { select: { profile_string: true } },
+      },
+    });
+    if (!user?.id) {
+      return res.status(409).json({ error: "User does not exist" });
+    }
+    const verified = verifyPassword(psw, user.hashed_password);
+    if (!verified) {
+      return res.status(401).json({ error: "Password do not match" });
+    }
+    const token = generateToken(user.user_profile.profile_string);
+    res.status(200).json({ token });
+  } catch (error) {
+    console.log("Error in Login handler", error);
+    res.status(400).json({ error: error.message });
+  }
 };
 module.exports = loginHandler;
