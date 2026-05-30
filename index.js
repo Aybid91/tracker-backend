@@ -4,7 +4,7 @@ dotenv.config();
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const { processSocketData } = require("./utils/socket");
+const { processSocketData } = require("./src/utils/socket");
 // const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const router = require("./apiRouter");
