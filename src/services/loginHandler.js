@@ -22,7 +22,13 @@ const loginHandler = async (req, res) => {
       return res.status(401).json({ error: "Password do not match" });
     }
     const token = generateToken(user.user_profile.profile_string);
-    res.status(200).json({ token });
+    res.cookie("tracker_token", token, {
+      maxAge: 9000000,
+      httpOnly: true,
+      secure: true,
+      // sameSite: 'strict'
+    });
+    res.status(200).json({ status: 1, message: "success" });
   } catch (error) {
     console.log("Error in Login handler", error);
     res.status(400).json({ error: error.message });

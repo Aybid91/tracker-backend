@@ -54,7 +54,13 @@ const signupHandler = async (req, res) => {
     });
     console.log("User account created: ", user.id);
     const token = generateToken(profileString);
-    res.status(200).json({ token });
+    res.cookie("tracker_token", token, {
+      maxAge: 9000000,
+      httpOnly: true,
+      secure: true,
+      // sameSite: 'strict'
+    });
+    res.status(200).json({ status: 1, message: "success" });
   } catch (error) {
     console.log("Error in Signup handler", error);
     res.status(400).json({ error: error.message });
