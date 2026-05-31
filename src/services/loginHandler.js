@@ -4,6 +4,9 @@ const { getPrisma } = require("../utils/prisma");
 
 const loginHandler = async (req, res) => {
   const { phn, psw } = req.body;
+  if (!phn) return res.status(400).json({ error: "User phone required" });
+  if (!psw) return res.status(400).json({ error: "User password required" });
+
   try {
     const prisma = getPrisma();
     const user = await prisma.user_account.findFirst({

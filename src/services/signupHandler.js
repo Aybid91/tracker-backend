@@ -25,6 +25,9 @@ const signupHandler = async (req, res) => {
   const salt = process.env.PSW_SALT;
   try {
     const { userName, phn, psw } = req.body;
+    if (!userName) return res.status(400).json({ error: "User name required" });
+    if (!phn) return res.status(400).json({ error: "User phone required" });
+    if (!psw) return res.status(400).json({ error: "User password required" });
     const hashedPsw = hashPassword(psw, salt);
     const prisma = getPrisma();
     const exists = await prisma.user_account.findFirst({

@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
     if (!user) {
       res.status(403).json({ status: 0, message: "Invalid user" });
     }
-    req.user = user;
+    req.userId = user.user_account_id;
     next();
   } catch (error) {
     return res.status(403).send({
