@@ -17,9 +17,10 @@ const getCurrentUserHandler = async (req, res) => {
       userName: user.user_profile.user_name,
       joined: user.user_profile.created_at,
     };
-    res.json({ data: currentUser });
+    res.json({ data: currentUser, status: 1 });
   } catch (error) {
     console.log(error);
+    res.json({ data: null, status: 0 });
   }
 };
 module.exports = getCurrentUserHandler;
